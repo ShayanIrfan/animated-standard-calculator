@@ -1,8 +1,57 @@
+function safeEval(expr) {
+    var processed = expr.replace(/%/g, '/100');
+    var openCount = (processed.match(/\(/g) || []).length;
+    var closeCount = (processed.match(/\)/g) || []).length;
+    for (var i = 0; i < openCount - closeCount; i++) {
+        processed += ')';
+    }
+    try {
+        var val = eval(processed);
+        if (val === undefined || val === null) return '';
+        return val;
+    } catch(e) {
+        return '';
+    }
+}
+
 function getNumber(num) {
     var result = document.getElementById("result");
     result.innerHTML += num;
-    var f_result = document.getElementById("f_result")
-    f_result.innerHTML = eval(result.innerHTML);
+    var f_result = document.getElementById("f_result");
+    var evalResult = safeEval(result.innerHTML);
+    if (evalResult !== '') f_result.innerHTML = evalResult;
+    var last_result = document.getElementById("last_result");
+    last_result.innerHTML = result.innerHTML;
+}
+
+function getBracket() {
+    var result = document.getElementById("result");
+    var expr = result.innerHTML;
+    var openCount = (expr.match(/\(/g) || []).length;
+    var closeCount = (expr.match(/\)/g) || []).length;
+    var lastChar = expr.slice(-1);
+
+    if (openCount > closeCount && /[0-9)%]/.test(lastChar)) {
+        result.innerHTML += ')';
+    } else {
+        result.innerHTML += '(';
+    }
+
+    var f_result = document.getElementById("f_result");
+    var evalResult = safeEval(result.innerHTML);
+    if (evalResult !== '') f_result.innerHTML = evalResult;
+    var last_result = document.getElementById("last_result");
+    last_result.innerHTML = result.innerHTML;
+}
+
+function getPercent() {
+    var result = document.getElementById("result");
+    var lastChar = result.innerHTML.slice(-1);
+    if (!/[0-9)]/.test(lastChar)) return;
+    result.innerHTML += '%';
+    var f_result = document.getElementById("f_result");
+    var evalResult = safeEval(result.innerHTML);
+    if (evalResult !== '') f_result.innerHTML = evalResult;
     var last_result = document.getElementById("last_result");
     last_result.innerHTML = result.innerHTML;
 }
@@ -17,6 +66,11 @@ function getOperator(opr) {
 function backspaceValue() {
     var result = document.getElementById("result");
     result.innerHTML = result.innerHTML.slice(0, -1);
+    var f_result = document.getElementById("f_result");
+    var evalResult = safeEval(result.innerHTML);
+    f_result.innerHTML = evalResult !== '' ? evalResult : '';
+    var last_result = document.getElementById("last_result");
+    last_result.innerHTML = result.innerHTML;
     myFunction_3(y);
 }
 
